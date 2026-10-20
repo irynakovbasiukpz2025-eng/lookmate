@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<title>LookMate прототип</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:wght@600&display=swap">
+<style>
+:root{
+--n0:#FFFFFF;--n50:#FAF7F2;--n100:#F1ECE4;--n200:#E2DBD0;--n400:#8C8478;--n500:#7A7266;--n600:#6B6459;--n700:#4A443C;--n900:#1F1C18;
+--p50:#EEF3EF;--p100:#D7E3DA;--p500:#5E8068;--p600:#3F5E4A;--p700:#2F4838;
+--s100:#F6E3D8;--s500:#C8643B;--s600:#A84F2C;--s700:#8F4224;
+--ok:#2E7D4F;--okbg:#E6F4EC;--oktx:#276B43;--err:#C0392B;--errbg:#FBE9E7;--warn:#8A5A12;--warnbg:#FDF3E1;--info:#2B6CB0;--infobg:#E8F0FA;
+--sp1:4px;--sp2:8px;--sp3:12px;--sp4:16px;--sp5:24px;--sp6:32px;--sp7:48px;
+--r-s:8px;--r-m:12px;--r-l:16px;--r-full:999px;--sh1:0 2px 8px rgba(31,28,24,.08);--sh2:0 8px 24px rgba(31,28,24,.14);
+--fh:'Lora',Georgia,serif;--fb:'Inter',system-ui,sans-serif;
+}
+body *{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--fb),system-ui,sans-serif;color:var(--n900);background:var(--n50)}
+.h1{font:600 28px/36px var(--fh)}.h2{font:600 22px/28px var(--fh)}.h3{font:600 18px/24px var(--fb)}
+.body{font:400 16px/24px var(--fb)}.bodys{font:600 16px/24px var(--fb)}.cap{font:400 13px/18px var(--fb);color:var(--n600)}.tag{font:500 12px/16px var(--fb)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:48px;padding:0 20px;border-radius:var(--r-m);font:600 16px/20px var(--fb);border:0;cursor:pointer;transition:transform .15s,background .15s;user-select:none}
+.btn:active,.btn.pressed{transform:scale(.97)}
+.btn-p{background:var(--p600);color:#fff}.btn-p.hover{background:var(--p700)}.btn-p.pressed{background:var(--p700)}
+.btn-a{background:var(--s600);color:#fff}.btn-a.pressed,.btn-a.hover{background:var(--s700)}
+.btn-o{background:transparent;color:var(--p600);box-shadow:inset 0 0 0 1.5px var(--p600)}.btn-o.hover{background:var(--p50)}
+.btn-t{background:transparent;color:var(--p600);padding:0 8px}
+.btn.focus{outline:3px solid var(--info);outline-offset:2px}
+.btn.disabled,.btn:disabled{background:var(--n100);color:var(--n500);box-shadow:none;cursor:default}
+.btn-m{height:40px;font-size:15px;padding:0 16px}
+.w100{width:100%}
+.spin{width:18px;height:18px;border:2.5px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:sp .8s linear infinite}
+.spin.dark{border-color:var(--p100);border-top-color:var(--p600)}
+@keyframes sp{to{transform:rotate(360deg)}}
+.field{display:flex;flex-direction:column;gap:6px}.field label{font:500 14px/20px var(--fb);color:var(--n700)}
+.inp{height:48px;border-radius:var(--r-m);border:1.5px solid var(--n400);background:#fff;padding:0 14px;font:400 16px var(--fb);color:var(--n900);display:flex;align-items:center}
+.inp.ph{color:var(--n500)}.inp.focus{border-color:var(--p600);box-shadow:0 0 0 3px var(--p100)}.inp.error{border-color:var(--err)}.inp.dis{background:var(--n100);color:var(--n500);border-color:var(--n200)}
+.hint{font:400 13px/18px var(--fb);color:var(--n600)}.hint.err{color:var(--err)}
+.chip{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border-radius:var(--r-full);background:#fff;box-shadow:inset 0 0 0 1px var(--n400);font:500 14px var(--fb);color:var(--n700);white-space:nowrap}
+.chip.on{background:var(--p600);color:#fff;box-shadow:none}
+.badge{display:inline-flex;align-items:center;gap:4px;height:24px;padding:0 8px;border-radius:var(--r-s);font:500 12px var(--fb)}
+.b-w{background:var(--infobg);color:var(--info)}.b-a{background:var(--s100);color:var(--s700)}.b-ok{background:var(--okbg);color:var(--oktx)}.b-err{background:var(--errbg);color:var(--err)}.b-warn{background:var(--warnbg);color:var(--warn)}
+.card{background:#fff;border-radius:var(--r-l);box-shadow:var(--sh1)}
+.ph-img{border-radius:var(--r-m);display:flex;align-items:center;justify-content:center;font-size:40px;font-family:'Noto Color Emoji'}
+.tabbar{display:flex;justify-content:space-around;background:#fff;border-top:1px solid var(--n200);height:64px;align-items:center}
+.tab{display:flex;flex-direction:column;align-items:center;gap:2px;font:500 11px var(--fb);color:var(--n600)}.tab .i{font-size:20px;line-height:22px}.tab.on{color:var(--p700);font-weight:700}.tab.on .i{background:var(--p100);border-radius:999px;padding:2px 14px}.tab .i{padding:2px 14px}
+.toast{display:flex;align-items:center;gap:10px;background:var(--n900);color:#fff;border-radius:var(--r-m);padding:12px 16px;font:500 15px/20px var(--fb);box-shadow:var(--sh2)}
+.sheet{background:#fff;border-radius:20px 20px 0 0;box-shadow:var(--sh2);padding:12px 16px 24px}.grab{width:40px;height:4px;border-radius:2px;background:var(--n200);margin:0 auto 12px}
+.radio{display:flex;align-items:center;gap:12px;height:48px;border-bottom:1px solid var(--n100);font:400 16px var(--fb)}.radio .o{width:20px;height:20px;border-radius:50%;box-shadow:inset 0 0 0 2px var(--n400)}.radio.on .o{box-shadow:inset 0 0 0 6px var(--p600)}
+.toggle{width:44px;height:26px;border-radius:13px;background:var(--n400);position:relative}.toggle:after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff}.toggle.on{background:var(--p600)}.toggle.on:after{left:21px}
+
+/* Layout: control panel on the left, a 360x740 Telegram Mini App frame on the right; panel stacks above on phones. Single light theme on purpose: the design system has no dark theme. */
+html{color-scheme:light}
+body{background:var(--n100);padding-block:24px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));min-height:100%}
+.wrap{display:flex;gap:40px;justify-content:center;align-items:flex-start;flex-wrap:wrap;max-width:1100px;margin:0 auto}
+.panel{flex:1 1 300px;max-width:400px;display:flex;flex-direction:column;gap:16px;min-width:0}
+.panel h1{font:600 30px/36px var(--fh);text-wrap:balance}
+.panel p{font:400 15px/22px var(--fb);color:var(--n700)}
+.scen{background:#fff;border-radius:var(--r-l);padding:16px;display:flex;flex-direction:column;gap:10px;box-shadow:var(--sh1)}
+.scen h2{font:600 13px/16px var(--fb);letter-spacing:.06em;text-transform:uppercase;color:var(--n600)}
+.scen ol{padding-left:20px;font:400 14px/20px var(--fb);color:var(--n700);display:flex;flex-direction:column;gap:4px}
+.optrow{display:flex;align-items:center;justify-content:space-between;gap:12px;font:500 14px/20px var(--fb)}
+.device{width:360px;max-width:100%;height:740px;border-radius:32px;overflow:hidden;position:relative;box-shadow:0 0 0 8px var(--n900),0 16px 40px rgba(31,28,24,.25);display:flex;flex-direction:column;background:var(--n50);flex:none;margin:8px}
+.tgbar{height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;font:600 15px var(--fb);background:#fff;border-bottom:1px solid var(--n200);flex:none}
+.tgbar button{background:none;border:0;font:600 15px var(--fb);color:var(--p600);cursor:pointer}
+.stage{flex:1;position:relative;overflow:hidden}
+.scr{position:absolute;inset:0;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:16px;background:var(--n50);transition:transform .25s ease,opacity .25s ease}
+.scr.in-r{transform:translateX(40px);opacity:0}.scr.in-l{transform:translateX(-40px);opacity:0}
+.tabbar{flex:none}.tab{background:none;border:0;cursor:pointer;min-width:64px}
+button.chip,.chip{cursor:pointer;border:0}
+button:focus-visible,.chip:focus-visible,.tab:focus-visible,.radio:focus-visible,input:focus-visible{outline:3px solid var(--info);outline-offset:2px}
+input.inp{width:100%;outline:none}input.inp:focus{border-color:var(--p600);box-shadow:0 0 0 3px var(--p100)}input.inp::placeholder{color:var(--n500)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.item{padding:6px}.item .nm{font:600 13px/18px var(--fb);margin-top:6px}
+.sk{background:linear-gradient(90deg,var(--n100),#fff,var(--n100));background-size:200% 100%;animation:sk 1.2s linear infinite;border-radius:var(--r-m)}
+@keyframes sk{to{background-position:-200% 0}}
+.overlay{position:absolute;inset:0;background:rgba(31,28,24,.45);opacity:0;transition:opacity .25s;z-index:5}
+.overlay.show{opacity:1}
+.sheet{position:absolute;left:0;right:0;bottom:0;z-index:6;transform:translateY(100%);transition:transform .3s ease}
+.sheet.show{transform:none}
+.radio{cursor:pointer;width:100%;background:none;border:0;border-bottom:1px solid var(--n100);text-align:left;color:var(--n900)}
+.toastwrap{position:absolute;left:16px;right:16px;bottom:80px;z-index:8;transform:translateY(20px);opacity:0;transition:all .25s;pointer-events:none}
+.toastwrap.show{transform:none;opacity:1}
+.toggle{border:0;cursor:pointer;flex:none;transition:background .2s}.toggle:after{transition:left .2s}
+.fab{position:absolute;right:16px;bottom:16px;border-radius:999px;box-shadow:var(--sh2);z-index:3}
+.loadbox{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center}
+.emo{font-family:'Noto Color Emoji','Apple Color Emoji','Segoe UI Emoji',sans-serif}
+.ph-img{font-family:'Noto Color Emoji','Apple Color Emoji','Segoe UI Emoji',sans-serif}
+.note-ok{background:var(--okbg);color:var(--oktx);border-radius:var(--r-m);padding:10px 12px;font:500 14px/20px var(--fb)}
+
+body.test .panel,body.res .wrap{display:none}
+body.test .wrap{flex-direction:column;align-items:center;gap:12px}
+.tbar{width:376px;max-width:100%;display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;background:#fff;border-radius:var(--r-l);padding:10px 12px;box-shadow:var(--sh1)}
+.tbar .tbbtns{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
+.tov{position:absolute;inset:0;z-index:20;background:var(--n50);overflow-y:auto;padding:24px 16px;display:flex;flex-direction:column;justify-content:center}
+.tcard{display:flex;flex-direction:column;gap:14px}
+.eyebrow{font:600 12px/16px var(--fb);letter-spacing:.08em;text-transform:uppercase;color:var(--p600)}
+.seq{display:flex;gap:6px;flex-wrap:wrap}.seq .chip{min-width:40px;height:40px;justify-content:center;font-size:16px}
+.seql{display:flex;justify-content:space-between;font:400 12px/16px var(--fb);color:var(--n600)}
+.susq{display:flex;flex-direction:column;gap:8px;padding-bottom:12px;border-bottom:1px solid var(--n200)}
+.tov:has(.susq){justify-content:flex-start}
+.chk{display:flex;gap:8px;align-items:center;font:400 14px/20px var(--fb);color:var(--n700)}
+details.mod{text-align:left;background:#fff;border-radius:var(--r-m);padding:10px 12px}details.mod summary{cursor:pointer;font:600 14px var(--fb);color:var(--n700)}details.mod[open]{display:flex;flex-direction:column;gap:8px}
+.copyfb{width:100%;height:120px;font:12px monospace}
+[hidden]{display:none!important}
+a.btn{text-decoration:none}
+.row{display:flex;gap:12px}
+#results{max-width:1100px;margin:0 auto}
+.rwrap{display:flex;flex-direction:column;gap:16px}
+.rhead{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
+.tscroll{overflow-x:auto;background:#fff;border-radius:var(--r-l);box-shadow:var(--sh1)}
+.rt{border-collapse:collapse;width:100%;font:400 14px/20px var(--fb);font-variant-numeric:tabular-nums}
+.rt th,.rt td{padding:10px 12px;border-bottom:1px solid var(--n100);text-align:left;white-space:nowrap}
+.rt th{font-weight:600;color:var(--n700);vertical-align:bottom}
+.rt td.r-ok{color:var(--oktx)}.rt td.r-no{color:var(--err)}.rt td.r-help{color:var(--warn)}
+.rt tr.sum td{font-weight:600;background:var(--p50)}
+details.sess{background:#fff;border-radius:var(--r-m);padding:12px 16px;box-shadow:var(--sh1)}details.sess summary{cursor:pointer;font:400 15px var(--fb)}
+details.sess pre{white-space:pre-wrap;font:12px/18px ui-monospace,Menlo,monospace;color:var(--n700);margin:12px 0;max-height:360px;overflow:auto}
+
+body.tg{padding:0}
+body.tg .panel,body.tg .tgbar{display:none}
+body.tg:not(.res){height:var(--tg-viewport-stable-height,100vh);overflow:hidden}
+body.tg:not(.res) .wrap{height:100%;max-width:none;gap:0;flex-direction:column;flex-wrap:nowrap;align-items:stretch}
+body.tg .device{width:100%;height:auto;flex:1;min-height:0;border-radius:0;box-shadow:none;margin:0}
+body.tg .tbar{width:100%;border-radius:0;box-shadow:0 1px 0 var(--n200)}
+body.tg.res{padding:16px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@media (max-width:420px){.device{height:700px;border-radius:24px}}
+</style>
+<style>html,body{height:100%}body{margin:0}</style>
+</head>
+<body>
+
+<div class="wrap">
+<div class="panel">
+<h1>LookMate: інтерактивний прототип</h1>
+<p>Telegram Mini App, зібраний з дизайн-системи «Спокійна шафа». Обидва сценарії можна пройти прямо в застосунку: після онбордингу обери «Додати речі» або «Підібрати образ», а далі перемикайся вкладками «Шафа» і «Образ». Кнопки нижче запускають сценарій одразу з потрібного екрана.</p>
+<div class="scen"><h2>Сценарій 1 · Образ на завтра</h2>
+<ol><li>Обери «Завтра» і подію, натисни «Підібрати образ».</li><li>«Не те» відкриває «Що не так?», після причини буде новий образ.</li><li>«Вдягну це» зберігає образ і ставить нагадування.</li></ol>
+<div class="optrow"><span id="wlbl">Погода недоступна (альтернативна гілка)</span><button class="toggle" id="wtoggle" role="switch" aria-checked="false" aria-labelledby="wlbl"></button></div>
+<button class="btn btn-p" id="go1">Почати сценарій 1</button></div>
+<div class="scen"><h2>Сценарій 2 · Додати речі</h2>
+<ol><li>Порожня шафа, натисни «Додати речі».</li><li>Одну річ не буде розпізнано: вкажи категорію вручну.</li><li>Збережи, і речі з’являться в шафі.</li></ol>
+<button class="btn btn-o" id="go2">Почати сценарій 2</button></div>
+<button class="btn btn-t" id="go0">Почати з онбордингу</button>
+<div class="scen"><h2>ЛР4 · Юзабіліті-тестування</h2><p style="font-size:14px;line-height:20px">Режим для учасника: без цієї панелі, з 5 задачами, SEQ після кожної та анкетою SUS. Час, помилки й таймкоди записуються самі.</p><div class="row" style="gap:8px;flex-wrap:wrap"><a class="btn btn-o btn-m" href="#test">Режим тестування</a><a class="btn btn-t btn-m" href="#results">Результати сесій</a></div></div>
+</div>
+<div class="tbar" id="tbar" hidden><span id="tbtask" class="bodys"></span><span id="tbstat" class="cap"></span><span class="tbbtns"><button class="btn btn-p btn-m" id="tbdone">Готово</button><button class="btn btn-o btn-m" id="tbskip">Не можу знайти</button><button class="btn btn-t btn-m" id="tbhelp" title="Позначка модератора">Підказав</button></span></div>
+<div class="device" id="dev">
+<div class="tgbar"><button id="close">✕ Закрити</button><span id="ttl">LookMate</span><span style="color:var(--n600)">⋯</span></div>
+<div class="stage" id="stage"></div>
+<div class="tabbar" id="tabs"></div>
+<div class="overlay" id="ov" hidden></div>
+<div class="sheet" id="sh" hidden></div>
+<div class="tov" id="tov" hidden></div>
+<div class="toastwrap" id="tw"><div class="toast" id="toast"></div></div>
+</div>
+</div>
+<div id="results" hidden></div>
+<script>
+const G={top:['👕','#E9E2D6','Светр бежевий','Верх'],top2:['👚','#EADBD3','Блуза рожева','Верх'],pants:['👖','#D9E1EA','Джинси темні','Низ'],skirt:['👗','#E3E8DC','Сукня зелена','Сукня'],shoes:['👟','#EEE7E0','Кеди білі','Взуття'],boots:['🥾','#E6DED3','Черевики','Взуття'],coat:['🧥','#DCE3DE','Пальто','Верхній одяг'],scarf:['🧣','#F1DCD3','Шарф теракотовий','Аксесуар'],bag:['👜','#ECE3D6','Сумка шкіряна','Аксесуар'],hood:['🧶','#E8E4EE','Кардиган','Верх']};
+const img=(k,h=96,fs=36)=>`<div class="ph-img" style="height:${h}px;background:${G[k][1]};font-size:${fs}px" aria-hidden="true">${G[k][0]}</div>`;
+const S={city:'Львів',day:'Завтра',ev:'Пари',noWeather:false,manualW:null,wardrobe:['top','top2','pants','skirt','coat','boots','shoes'],outfitIx:0,reason:null,tab:'Образ',upload:null,cat:null,saved:false};
+const OUT=[{items:['coat','top','pants','boots'],txt:'Тепле пальто й светр закривають горло, темні джинси пасують до всього, черевики не бояться дощу.'},{items:['hood','top2','pants','shoes'],txt:'Кардиган легко зняти в аудиторії, рожева блуза освіжає темні джинси.'},{items:['coat','skirt','boots','scarf'],txt:'Сміливіше: зелена сукня з теракотовим шарфом, пальто й черевики тримають тепло.'}];
+const $=id=>document.getElementById(id);let cur=null;
+function show(name,dir='r'){const s=document.createElement('div');s.className='scr in-'+dir;s.innerHTML=V[name]();$('stage').appendChild(s);requestAnimationFrame(()=>requestAnimationFrame(()=>s.classList.remove('in-'+dir)));if(cur){const o=cur;o.classList.add(dir==='r'?'in-l':'in-r');setTimeout(()=>o.remove(),260)}cur=s;S.screen=name;$('ttl').textContent=TT[name]||'LookMate';tabs();bind(s);window.TH&&TH.check(name)}
+const TT={onb:'LookMate',onb2:'LookMate',home:'LookMate',loading:'LookMate',outfit:'LookMate',ward:'Моя шафа',add:'Додати речі',recog:'Додати речі',result:'Додати речі',miss:'Чого бракує',prof:'Профіль',closed:'Telegram'};
+function tabs(){const t=[['🗂','Шафа','ward'],['✨','Образ','home'],['🛍','Чого бракує','miss'],['⚙︎','Профіль','prof']];const hide=['onb','onb2','closed'].includes(S.screen);$('tabs').hidden=hide;$('tabs').innerHTML=t.map(([i,n,s])=>`<button class="tab${S.tab===n?' on':''}" data-tab="${n}" data-go="${s}"><span class="i emo">${i}</span>${n}</button>`).join('')}
+function toast(msg,kind){const t=$('toast');t.style.background=kind==='err'?'var(--err)':'';t.innerHTML=(kind==='err'?'':'<span style="color:#7BD3A0">✓</span>')+msg;$('tw').classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>$('tw').classList.remove('show'),2600)}
+const chips=(arr,sel,key)=>arr.map(x=>`<button class="chip${x===sel?' on':''}" data-set="${key}" data-val="${x}" aria-pressed="${x===sel}">${x}</button>`).join('');
+const V={
+onb:()=>`<div class="emo" style="text-align:center;font-size:56px;margin-top:16px">🧥</div><div class="h1" style="text-align:center">Привіт! Я підберу образ з твоїх речей</div><div class="body" style="text-align:center;color:var(--n600)">Спершу скажи місто, щоб я враховував погоду</div>
+<div class="field"><label for="city">Місто</label><input class="inp" id="city" placeholder="Напр., Львів" autocomplete="off"><div class="hint" id="cityh">Потрібно для погоди</div></div>
+<button class="btn btn-p w100" style="margin-top:auto" data-act="onbNext">Далі</button><div class="cap" style="text-align:center">Крок 1 з 2</div>`,
+onb2:()=>`<div class="emo" style="text-align:center;font-size:56px;margin-top:16px">🧺</div><div class="h1" style="text-align:center">Що зробимо спершу?</div><div class="body" style="text-align:center;color:var(--n600)">Можна одразу додати речі або подивитися, як я складаю образ</div>
+<button class="card" data-act="startAdd" style="border:0;cursor:pointer;padding:16px;display:flex;gap:12px;align-items:center;text-align:left"><span class="emo" style="font-size:32px">📸</span><span><span class="bodys" style="display:block">Додати речі</span><span class="cap">Сфотографуй кілька речей, я розпізнаю їх сам</span></span></button>
+<button class="card" data-act="startOutfit" style="border:0;cursor:pointer;padding:16px;display:flex;gap:12px;align-items:center;text-align:left"><span class="emo" style="font-size:32px">✨</span><span><span class="bodys" style="display:block">Підібрати образ на завтра</span><span class="cap">З речей, які вже є в шафі</span></span></button>
+<div class="cap" style="text-align:center;margin-top:auto">Крок 2 з 2 · Обидва варіанти будуть доступні у вкладках знизу</div>`,
+home:()=>{const w=S.noWeather&&!S.manualW?`<div class="card" style="padding:14px;display:flex;flex-direction:column;gap:10px;box-shadow:0 0 0 1.5px var(--warn)"><div class="bodys" style="color:var(--warn)">Не вдалося отримати погоду</div><div class="cap">Скажи, яка зараз погода, і я підберу образ під неї</div><div style="display:flex;gap:6px;flex-wrap:wrap">${chips(['☀️ Тепло','🌥 Прохолодно','🌧 Дощ'],null,'manualW')}</div></div>`
+:`<div class="card" style="padding:14px;display:flex;gap:12px;align-items:center"><div class="emo" style="font-size:36px">${S.manualW?S.manualW.split(' ')[0]:'🌧'}</div><div><div class="bodys">${S.manualW?S.manualW.split(' ').slice(1).join(' ')+', вказано вручну':'+8 °C, дощ після обіду'}</div><div class="cap">${S.manualW?'Можна змінити в будь-який момент':'Вітер 6 м/с. Варто взяти щось непромокне'}</div></div></div>`;
+return `<div><div class="cap">Середа, 15 жовтня · ${S.city}</div><div class="h1" style="margin-top:4px">Що вдягнути?</div></div><div style="display:flex;gap:6px">${chips(['Сьогодні','Завтра','На подію'],S.day,'day')}</div>${w}
+<div class="field"><span style="font:500 14px/20px var(--fb);color:var(--n700)">Куди йдеш?</span><div style="display:flex;gap:6px;flex-wrap:wrap">${chips(['Пари','Робота','Побачення','Прогулянка'],S.ev,'ev')}</div></div>
+<button class="btn btn-p w100" style="margin-top:auto" data-act="pick" ${S.noWeather&&!S.manualW?'disabled':''}>Підібрати образ</button>`},
+loading:()=>`<div class="loadbox"><span class="spin dark" style="width:32px;height:32px;border-width:3px"></span><div class="h3">Складаю образ…</div><div class="cap">Дивлюся на погоду і твої речі</div></div>`,
+outfit:()=>{const o=OUT[S.outfitIx];return `<div><div class="cap">${S.day} · ${S.ev} · ${S.city}</div><div class="h1" style="margin-top:4px">Що вдягнути?</div></div>
+<div class="card" style="padding:16px;display:flex;flex-direction:column;gap:12px"><div style="display:flex;justify-content:space-between;align-items:center"><span class="h2">Образ ${S.day==='Сьогодні'?'на сьогодні':S.day==='Завтра'?'на завтра':'на подію'}</span><span class="badge b-w">${S.manualW||'🌧 +8 °C'}</span></div>
+<div class="grid2" style="gap:8px">${o.items.map(k=>img(k,104)).join('')}</div>${S.reason?`<span class="badge b-a" style="align-self:flex-start">Враховано: ${S.reason.toLowerCase()}</span>`:''}<div class="cap" style="font-size:14px;line-height:20px;color:var(--n700)">${o.txt}</div></div>
+${S.saved?`<div class="note-ok">Збережено. Нагадаю ввечері о 21:00 у чаті</div>`:''}
+<div style="display:flex;flex-direction:column;gap:8px"><button class="btn btn-p w100" data-act="wear">Вдягну це</button><div style="display:flex;gap:8px"><button class="btn btn-o btn-m" style="flex:1" data-act="other">Інший</button><button class="btn btn-a btn-m" style="flex:1" data-act="bold">✨ Сміливіше</button></div><button class="btn btn-t btn-m" style="align-self:center" data-act="notit">Не те</button></div>`},
+ward:()=>S.wardrobe.length?`<div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><div class="h1">Моя шафа</div><span class="badge b-a">${S.wardrobe.length} речей</span></div><button class="btn btn-o btn-m w100" data-act="toAdd">＋ Додати речі</button><div style="display:flex;gap:6px">${chips(['Усе','Верх','Низ','Взуття'],'Усе','none')}</div><div class="grid2">${S.wardrobe.map(k=>`<div class="card item">${img(k,92,34)}<div class="nm">${G[k][2]}</div><div class="cap" style="font-size:12px">${G[k][3]}</div></div>`).join('')}</div><div style="height:56px;flex:none"></div>`
+:`<div class="h1">Моя шафа</div><div class="card" style="padding:24px;text-align:center;display:flex;flex-direction:column;gap:10px;align-items:center;margin-top:24px"><div class="emo" style="font-size:44px">🧺</div><div class="h3">Шафа поки порожня</div><div class="cap">Сфотографуй 3–5 речей на вішаку чи столі, і я складу перший образ</div><button class="btn btn-p btn-m" data-act="toAdd">Додати речі</button></div>`,
+add:()=>`<div class="h2">Додати речі</div><div class="cap">Фото на вішаку чи столі, по одній речі в кадрі. До 10 за раз</div>
+<button data-act="choose" style="height:180px;border-radius:16px;border:2px dashed var(--n400);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:var(--p600);font:600 16px var(--fb);background:#fff;cursor:pointer"><span style="font-size:32px">＋</span>Обрати фото<span class="cap">у прототипі підставляться 4 приклади</span></button>
+<div class="card" style="padding:12px;display:flex;gap:10px;align-items:flex-start;box-shadow:none;background:var(--infobg)"><span class="emo">💡</span><div class="cap" style="color:var(--n700)">Однотонний фон допомагає розпізнати річ з першого разу</div></div>`,
+recog:()=>`<div class="h2">Розпізнаю речі…</div><div class="cap">Це займе кілька секунд</div><div class="grid2">${[1,2,3,4].map(()=>`<div class="card item"><div class="sk" style="height:84px"></div><div class="sk" style="height:12px;width:80%;margin-top:10px"></div><div class="sk" style="height:10px;width:50%;margin-top:6px"></div></div>`).join('')}</div>`,
+result:()=>`<div class="h2">Перевір речі</div><div class="cap">Розпізнав 3 з 4. Для однієї вкажи категорію</div><div class="grid2">${['scarf','bag','hood'].map(k=>`<div class="card item">${img(k,84,32)}<div class="nm">${G[k][2]}</div><span class="badge b-ok" style="margin-top:4px">✓ розпізнано</span></div>`).join('')}
+<div class="card item" style="box-shadow:0 0 0 2px ${S.cat?'var(--p600)':'var(--err)'}">${S.cat?img('shoes',84,32):`<div class="ph-img" style="height:84px;background:var(--errbg);font-size:26px">❓</div>`}<div class="nm" style="color:${S.cat?'var(--n900)':'var(--err)'}">${S.cat?S.cat:'Не впізнано'}</div><div class="cap" style="font-size:12px">${S.cat?'вказано вручну':'Вкажи категорію'}</div></div></div>
+<div class="field"><span style="font:500 14px/20px var(--fb);color:var(--n700)">Що це за річ?</span><div style="display:flex;gap:6px;flex-wrap:wrap">${chips(['Верх','Низ','Взуття','Аксесуар'],S.cat,'cat')}</div><div class="hint${S.catErr&&!S.cat?' err':''}" id="cath">${S.catErr&&!S.cat?'Без категорії не зможу додати річ в образ':'Обери одну категорію'}</div></div>
+<button class="btn btn-p w100" style="margin-top:auto" data-act="saveItems">Зберегти 4 речі</button>`,
+miss:()=>`<div class="h1">Чого бракує</div><div class="body" style="color:var(--n600)">Ці речі дадуть найбільше нових образів з тим, що вже є</div>${[['coat','Тренч бежевий',9,'ok','топ'],['shoes','Білі кеди',12,'ok','топ'],['scarf','Шарф у клітинку',5,'w','на зиму']].map(([k,n,c,b,t])=>`<div class="card" style="padding:10px;display:flex;gap:12px;align-items:center"><div style="width:64px;flex:none">${img(k,64,28)}</div><div style="flex:1"><div class="bodys">${n}</div><div class="cap">Поєднається з ${c} твоїми речами</div></div><span class="badge b-${b}">${t}</span></div>`).join('')}<div class="card" style="padding:12px;background:var(--warnbg);box-shadow:none"><div class="bodys" style="color:var(--warn)">Мало взуття</div><div class="cap" style="color:var(--n700)">Лише 2 пари: образи часто повторюються</div></div>`,
+prof:()=>`<div class="h1">Профіль</div><div class="card" style="padding:4px 16px">${[['Місто',S.city],['Вечірнє нагадування','21:00']].map(([a,b])=>`<div style="display:flex;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--n100)" class="body"><span>${a}</span><span style="color:var(--n600)">${b}</span></div>`).join('')}<div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0" class="body"><span id="rl">Нагадувати про образ</span><button class="toggle on" role="switch" aria-checked="true" aria-labelledby="rl" data-act="tg"></button></div></div>`,
+closed:()=>`<div class="loadbox"><div class="emo" style="font-size:44px">💬</div><div class="h3">Mini App закрито</div><div class="cap">Ти повернулася в чат з ботом. Відкрити знову можна кнопкою «Образ» у меню</div><button class="btn btn-p btn-m" data-act="reopen">Відкрити LookMate</button></div>`};
+function sheet(open){const ov=$('ov'),sh=$('sh');if(open){S.tmpReason=null;sh.innerHTML=`<div class="grab"></div><div class="h3" style="margin-bottom:4px">Що не так?</div><div class="cap" style="margin-bottom:4px">Запам’ятаю і більше так не пропонуватиму</div>${['Не за погодою','Кольори не пасують','Не люблю цю річ','Просто не подобається'].map(r=>`<button class="radio" role="radio" aria-checked="false" data-r="${r}"><span class="o"></span>${r}</button>`).join('')}<button class="btn btn-p w100" style="margin-top:12px" id="shgo" disabled>Підібрати інший</button>`;ov.hidden=sh.hidden=false;requestAnimationFrame(()=>requestAnimationFrame(()=>{ov.classList.add('show');sh.classList.add('show')}));
+sh.querySelectorAll('.radio').forEach(b=>b.onclick=()=>{sh.querySelectorAll('.radio').forEach(x=>{x.classList.remove('on');x.setAttribute('aria-checked','false')});b.classList.add('on');b.setAttribute('aria-checked','true');S.tmpReason=b.dataset.r;$('shgo').disabled=false});
+$('shgo').onclick=()=>{S.reason=S.tmpReason;window.TH&&TH.log('reason',S.reason);sheet(false);newOutfit(S.outfitIx===0?1:0)}}else{ov.classList.remove('show');sh.classList.remove('show');setTimeout(()=>{ov.hidden=sh.hidden=true},300)}}
+function newOutfit(ix){S.saved=false;show('loading');setTimeout(()=>{S.outfitIx=ix;show('outfit')},1100)}
+const ACT={onbNext:()=>{const v=$('city').value.trim();const ok=/^(львів|lviv|київ|kyiv|стрий)$/i.test(v);if(!ok){window.TH&&TH.log('validation','Місто: '+(v||'порожньо'));$('city').classList.add('error');$('city').setAttribute('aria-invalid','true');$('cityh').className='hint err';$('cityh').textContent=v?'Не знайшов таке місто. Перевір написання':'Вкажи місто, щоб я знав погоду';$('city').focus();return}S.city=v[0].toUpperCase()+v.slice(1).toLowerCase();S.tab='Образ';show('onb2')},
+pick:()=>{S.reason=null;newOutfit(0)},other:()=>newOutfit(S.outfitIx===1?0:1),bold:()=>newOutfit(2),notit:()=>sheet(true),
+wear:()=>{S.saved=true;show('outfit');toast('Образ '+(S.day==='Завтра'?'на завтра ':'')+'збережено')},
+toAdd:()=>show('add'),startAdd:()=>{S.tab='Шафа';show('add')},startOutfit:()=>{S.tab='Образ';show('home')},choose:()=>{show('recog');setTimeout(()=>{S.cat=null;S.catErr=false;show('result')},1500)},
+saveItems:()=>{if(!S.cat){window.TH&&TH.log('validation','Без категорії');S.catErr=true;show('result','r');return}S.wardrobe=[...new Set([...S.wardrobe,'scarf','bag','hood','shoes'])];S.addedOk=true;S.tab='Шафа';show('ward','l');toast('Додано 4 речі в шафу')},
+tg:e=>{const b=e.currentTarget;b.classList.toggle('on');b.setAttribute('aria-checked',b.classList.contains('on'))},reopen:()=>{S.tab='Образ';show('home','l')}};
+function bind(s){s.querySelectorAll('[data-act]').forEach(b=>b.onclick=e=>ACT[b.dataset.act](e));s.querySelectorAll('[data-set]').forEach(b=>b.onclick=()=>{const k=b.dataset.set;if(k==='none')return;S[k]=b.dataset.val;if(k==='cat'){S.catErr=false}show(S.screen,'r')});const c=s.querySelector('#city');if(c){c.onkeydown=e=>{if(e.key==='Enter')ACT.onbNext()};c.oninput=()=>{c.classList.remove('error');$('cityh').className='hint';$('cityh').textContent='Потрібно для погоди'}}}
+$('tabs').onclick=e=>{const b=e.target.closest('.tab');if(!b)return;S.tab=b.dataset.tab;show(b.dataset.go)};
+$('ov').onclick=()=>sheet(false);$('close').onclick=()=>{window.TH&&TH.log('close','Закрити Mini App');sheet(false);show('closed','l')};
+$('wtoggle').onclick=()=>{S.noWeather=!S.noWeather;S.manualW=null;$('wtoggle').classList.toggle('on',S.noWeather);$('wtoggle').setAttribute('aria-checked',S.noWeather);if(['home','outfit'].includes(S.screen))show('home','l')};
+$('go1').onclick=()=>{sheet(false);S.day='Завтра';S.ev='Пари';S.manualW=null;S.saved=false;S.reason=null;S.tab='Образ';show('home','l')};
+$('go2').onclick=()=>{sheet(false);S.wardrobe=[];S.tab='Шафа';show('ward','l')};
+$('go0').onclick=()=>{sheet(false);show('onb','l')};
+</script>
+<script>
+/* ===== Режим юзабіліті-тестування (ЛР4): #test для учасника, #results для команди ===== */
+(function(){
+const TG=window.Telegram&&window.Telegram.WebApp;const inTG=!!(TG&&TG.platform&&TG.platform!=='unknown');
+if(inTG){document.body.classList.add('tg');try{TG.ready();TG.expand();TG.setHeaderColor('#FFFFFF');TG.setBackgroundColor('#FAF7F2')}catch(e){}
+ document.addEventListener('click',e=>{if(e.target.closest('.btn,.chip,.tab,.radio,.toggle')){try{TG.HapticFeedback.impactOccurred('light')}catch(_){}}},true)}
+const TASKS=[
+ {id:'T1',text:'Завтра у вас навчання в університеті. Підготуйте, у чому піти, і зробіть так, щоб застосунок запам’ятав ваш вибір.',crit:'Збережено комплект на «Завтра» з подією «Пари»',limit:120,
+  setup(){Object.assign(S,{wardrobe:['top','top2','pants','skirt','coat','boots','shoes'],day:'Сьогодні',ev:'Прогулянка',noWeather:false,manualW:null,saved:false,reason:null,tab:'Образ'});show('home','r')},
+  ok(){return S.screen==='outfit'&&S.saved&&S.day==='Завтра'&&S.ev==='Пари'}},
+ {id:'T2',text:'Ви щойно купили шарф, сумку, кардиган і кеди. Зробіть так, щоб застосунок міг використовувати ці речі у ваших комплектах.',crit:'Усі 4 речі збережено, для нерозпізнаної вказано категорію',limit:150,
+  setup(){Object.assign(S,{wardrobe:['top','top2','pants','skirt','coat','boots'],addedOk:false,cat:null,catErr:false,tab:'Образ',noWeather:false,manualW:null});show('home','r')},
+  ok(){return S.addedOk===true}},
+ {id:'T3',text:'Застосунок запропонував вам комплект, але кольори вам не до вподоби. Повідомте про це і отримайте інший варіант.',crit:'Обрано причину «Кольори не пасують» і показано новий комплект',limit:90,
+  setup(){Object.assign(S,{day:'Завтра',ev:'Пари',outfitIx:0,saved:false,reason:null,tab:'Образ',noWeather:false,manualW:null});show('outfit','r')},
+  ok(){return S.screen==='outfit'&&S.reason==='Кольори не пасують'}},
+ {id:'T4',text:'Ви хочете купити одну річ, яка підійде до найбільшої кількості вашого одягу. З’ясуйте, що це за річ, і скажіть уголос.',crit:'Відкрито список рекомендацій і названо «Білі кеди»',limit:60,
+  setup(){Object.assign(S,{tab:'Образ',noWeather:false,manualW:null});show('home','r')},
+  ok(){return S.screen==='miss'}},
+ {id:'T5',text:'Сьогодні застосунок не знає прогнозу погоди, а надворі дощ. Виберіть, у чому піти сьогодні на прогулянку.',crit:'Вказано погоду вручну, обрано «Сьогодні» і показано комплект',limit:120,
+  setup(){Object.assign(S,{noWeather:true,manualW:null,day:'Завтра',ev:'Пари',saved:false,reason:null,tab:'Образ'});$('wtoggle').classList.add('on');show('home','r')},
+  ok(){return S.screen==='outfit'&&!!S.manualW&&S.day==='Сьогодні'}}
+];
+const SUS=['Думаю, що я хотів(-ла) би часто користуватися цим застосунком.','Застосунок здався мені надто складним.','Застосунком було легко користуватися.','Думаю, мені знадобилася б допомога фахівця, щоб ним користуватися.','Різні функції застосунку добре поєднані між собою.','У застосунку забагато непослідовності.','Думаю, більшість людей дуже швидко навчиться ним користуватися.','Застосунок здався мені дуже незручним.','Я почувався(-лася) впевнено, користуючись застосунком.','Мені довелося багато чого вивчити, перш ніж я зміг(-ла) ним користуватися.'];
+const susScore=a=>a.reduce((s,v,i)=>s+(i%2===0?v-1:5-v),0)*2.5;
+const mmss=ms=>{const s=Math.max(0,Math.round(ms/1000));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')};
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let db=null;(async()=>{try{db=await window.claude?.use?.('db')}catch(e){db=null}if(MODE==='results')renderResults()})();
+const LS='lookmate_sessions_v1';
+const loadLocal=()=>{try{return JSON.parse(localStorage.getItem(LS)||'[]')}catch(e){return[]}};
+const saveLocal=sess=>{try{const a=loadLocal().filter(x=>x.id!==sess.id);a.push(sess);localStorage.setItem(LS,JSON.stringify(a))}catch(e){}};
+async function persist(sess){saveLocal(sess);if(db){try{await db.collection('sessions').doc(sess.id).set(JSON.parse(JSON.stringify(sess)));sess._saved='db'}catch(e){sess._saved='local'}}else sess._saved='local'}
+let MODE='demo',sess=null,ti=-1,task=null,t0=0;
+const TH=window.TH={log(type,detail){if(!task)return;task.events.push({t:Date.now()-sess.t0,type,detail});if(type==='validation')task.validation++;if(type==='close')task.closes++},
+ check(){if(!task||task.done||task.successAt!=null)return;if(TASKS[ti].ok()){task.successAt=Date.now()-t0;TH.log('success',TASKS[ti].crit);flash('✓ Задачу виконано');setTimeout(()=>endTask('так'),1400)}},
+ boot(){return applyMode()}};
+function flash(msg){$('tbstat').textContent=msg}
+function overlay(html){const o=$('tov');o.innerHTML=html;o.hidden=false;o.scrollTop=0}
+function hideOverlay(){$('tov').hidden=true;$('tov').innerHTML=''}
+function startScreen(){overlay(`<div class="tcard"><div class="eyebrow">Юзабіліті-тестування</div><div class="h2">Нова сесія</div><div class="cap">Заповнює модератор перед тим, як передати пристрій учаснику</div>
+<div class="field"><label for="pcode">Код учасника</label><input class="inp" id="pcode" placeholder="Напр., У-1" autocomplete="off"></div>
+<label class="chk"><input type="checkbox" id="ppilot"> Пілотна сесія (не враховується в метриках)</label>
+<button class="btn btn-p w100" id="pstart">Почати сесію</button><a class="cap" href="#results" style="text-align:center;color:var(--p600)">Переглянути результати сесій</a></div>`);
+ $('pstart').onclick=()=>{const c=$('pcode').value.trim();if(!c){$('pcode').classList.add('error');$('pcode').focus();return}
+  sess={id:'s'+Date.now()+'_'+Math.random().toString(36).slice(2,6),code:c,pilot:$('ppilot').checked,startedAt:new Date().toISOString(),t0:Date.now(),device:innerWidth<600?'телефон':'комп’ютер',tasks:[],sus:null,susScore:null,finished:false};
+  ti=-1;nextTask()}}
+function nextTask(){ti++;task=null;$('tbar').hidden=true;if(ti>=TASKS.length)return susScreen();const T=TASKS[ti];
+ overlay(`<div class="tcard"><div class="eyebrow">Задача ${ti+1} з ${TASKS.length}</div><div class="body" style="font-size:18px;line-height:27px">${T.text}</div><div class="cap">Будь ласка, думайте вголос: кажіть, що шукаєте і що очікуєте побачити.</div><button class="btn btn-p w100" id="tgo">Почати задачу</button></div>`);
+ $('tgo').onclick=()=>{hideOverlay();sheet(false);T.setup();t0=Date.now();task={id:T.id,startAt:t0-sess.t0,events:[],validation:0,misclicks:0,closes:0,assisted:false,successAt:null,done:false};TH.log('start',T.id);
+  $('tbar').hidden=false;$('tbtask').textContent=`Задача ${ti+1} з ${TASKS.length}`;flash('');}}
+function endTask(how){if(!task||task.done)return;task.done=true;const T=TASKS[ti];const dur=Date.now()-t0;
+ const success=task.successAt!=null?(task.assisted?'з допомогою':'так'):'ні';
+ task.result=success;task.timeSec=Math.round((task.successAt??dur)/1000);task.overLimit=task.timeSec>T.limit;task.errors=task.validation+task.misclicks+task.closes;TH.log('end',how==='skip'?'учасник зупинився':success);
+ $('tbar').hidden=true;
+ overlay(`<div class="tcard"><div class="eyebrow">Задача ${ti+1} · одне питання</div><div class="h3">Наскільки легкою чи складною була ця задача?</div><div class="seq">${[1,2,3,4,5,6,7].map(n=>`<button class="chip" data-seq="${n}">${n}</button>`).join('')}</div><div class="seql"><span>1 · дуже складна</span><span>7 · дуже легка</span></div></div>`);
+ $('tov').querySelectorAll('[data-seq]').forEach(b=>b.onclick=async()=>{task.seq=+b.dataset.seq;sess.tasks.push(task);await persist(sess);nextTask()})}
+function susScreen(){const ans=new Array(10).fill(0);
+ overlay(`<div class="tcard"><div class="eyebrow">Останній крок</div><div class="h3">Наскільки ви погоджуєтеся з кожним твердженням?</div><div class="cap">1 · зовсім не погоджуюся, 5 · повністю погоджуюся</div>${SUS.map((q,i)=>`<div class="susq"><div class="body" style="font-size:15px;line-height:21px">${i+1}. ${q}</div><div class="seq">${[1,2,3,4,5].map(n=>`<button class="chip" data-q="${i}" data-v="${n}">${n}</button>`).join('')}</div></div>`).join('')}<button class="btn btn-p w100" id="susgo" disabled>Завершити</button></div>`);
+ $('tov').querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>{const q=+b.dataset.q;ans[q]=+b.dataset.v;$('tov').querySelectorAll(`[data-q="${q}"]`).forEach(x=>x.classList.toggle('on',x===b));$('susgo').disabled=ans.includes(0)});
+ $('susgo').onclick=async()=>{sess.sus=ans;sess.susScore=susScore(ans);sess.finished=true;sess.durationSec=Math.round((Date.now()-sess.t0)/1000);await persist(sess);finalScreen()}}
+function sessionText(s){const L=[`Учасник: ${s.code}${s.pilot?' (пілот)':''} · ${new Date(s.startedAt).toLocaleString('uk-UA')} · ${s.device}`];
+ s.tasks.forEach(t=>{L.push(`${t.id}: ${t.result}, ${t.timeSec} с${t.overLimit?' (понад ліміт)':''}, помилок ${t.errors} (валідація ${t.validation}, тапи без реакції ${t.misclicks}, закриття ${t.closes}), SEQ ${t.seq}`);t.events.forEach(e=>L.push(`  ${mmss(e.t)}  ${e.type}  ${e.detail||''}`))});
+ if(s.sus)L.push(`SUS: ${s.susScore} (відповіді ${s.sus.join(', ')})`);return L.join('\n')}
+async function copy(txt,btn){try{await navigator.clipboard.writeText(txt);btn.textContent='Скопійовано'}catch(e){const ta=document.createElement('textarea');ta.value=txt;ta.className='copyfb';btn.after(ta);ta.select();btn.textContent='Виділено, натисніть Ctrl+C'}}
+function payload(s){const o={v:1,code:s.code,pilot:s.pilot,startedAt:s.startedAt,device:s.device,durationSec:s.durationSec,susScore:s.susScore,sus:s.sus,tasks:s.tasks.map(t=>({id:t.id,result:t.result,timeSec:t.timeSec,overLimit:t.overLimit,errors:t.errors,validation:t.validation,misclicks:t.misclicks,closes:t.closes,seq:t.seq}))};o.notes=sessionText(s);const n=x=>new TextEncoder().encode(JSON.stringify(x)).length;while(n(o)>4000&&o.notes.length>20){o.notes=o.notes.slice(0,Math.floor(o.notes.length*0.85))}return JSON.stringify(o)}
+window.__lmPayload=()=>sess&&payload(sess);
+function finalScreen(){overlay(`<div class="tcard" style="text-align:center"><div class="emo" style="font-size:44px">🙌</div><div class="h2">Дякуємо!</div><div class="body" style="color:var(--n600)">Тестування завершено. Поверніть, будь ласка, пристрій модератору.</div>
+<details class="mod"><summary>Для модератора</summary><div class="cap" style="text-align:left">Збережено: ${sess._saved==='db'?'у спільній базі артефакту':'лише в цьому браузері, скопіюйте результати'}. SUS: ${sess.susScore}</div>${inTG?'<button class="btn btn-p btn-m w100" id="tgsend">Надіслати результати в бот</button>':''}<button class="btn btn-o btn-m w100" id="cpy">Копіювати результати і нотатки</button></details>
+<button class="btn btn-t" id="newsess">Нова сесія</button></div>`);
+ $('cpy').onclick=e=>copy(sessionText(sess),e.currentTarget);const ts=$('tgsend');if(ts)ts.onclick=()=>{try{TG.sendData(payload(sess))}catch(e){ts.textContent='Не вдалося. Відкрийте тест кнопкою «Режим тестування» внизу чату'}};$('newsess').onclick=()=>{sess=null;startScreen()}}
+// глобальний облік тапів без реакції
+document.addEventListener('click',e=>{if(!task||task.done)return;const dev=$('dev');if(!dev.contains(e.target)||$('tov').contains(e.target))return;
+ const hit=e.target.closest('button,input,a,label');if(hit){TH.log('tap',(hit.innerText||hit.getAttribute('aria-label')||hit.id||'').replace(/\s+/g,' ').trim().slice(0,40))}else{task.misclicks++;TH.log('misclick',(e.target.innerText||e.target.className||'').replace(/\s+/g,' ').trim().slice(0,40))}},true);
+$('tbdone').onclick=()=>endTask('done');$('tbskip').onclick=()=>endTask('skip');$('tbhelp').onclick=()=>{if(task){task.assisted=true;TH.log('assist','підказка модератора');flash('Позначено: з допомогою')}};
+// ---------- результати
+function renderResults(){const box=$('results');let local=loadLocal();
+ const draw=list=>{const byId={};local.forEach(s=>byId[s.id]=s);list.forEach(s=>byId[s.id]=s);const all=Object.values(byId).filter(s=>s.tasks&&s.tasks.length).sort((a,b)=>a.startedAt<b.startedAt?-1:1);
+  const real=all.filter(s=>!s.pilot);const avg=a=>a.length?(a.reduce((x,y)=>x+y,0)/a.length):null;const f1=v=>v==null?'-':(Math.round(v*10)/10).toString().replace('.',',');
+  const head=`<tr><th>Учасник</th>${TASKS.map(t=>`<th>${t.id}<br><span class="cap">успіх · час · SEQ</span></th>`).join('')}<th>SUS</th></tr>`;
+  const cell=t=>t?`<td class="r-${t.result==='так'?'ok':t.result==='ні'?'no':'help'}">${t.result} · ${t.timeSec} с · ${t.seq??'-'}</td>`:'<td>-</td>';
+  const rows=all.map(s=>`<tr><td><b>${esc(s.code)}</b>${s.pilot?' <span class="badge b-warn">пілот</span>':''}</td>${TASKS.map(T=>cell(s.tasks.find(t=>t.id===T.id))).join('')}<td>${s.susScore??'-'}</td></tr>`).join('');
+  const sum=`<tr class="sum"><td>Разом (без пілотів, n=${real.length})</td>${TASKS.map(T=>{const ts=real.map(s=>s.tasks.find(t=>t.id===T.id)).filter(Boolean);return `<td>${ts.filter(t=>t.result==='так').length} з ${ts.length} · ${f1(avg(ts.map(t=>t.timeSec)))} с · ${f1(avg(ts.map(t=>t.seq).filter(x=>x!=null)))}</td>`}).join('')}<td>${f1(avg(real.map(s=>s.susScore).filter(x=>x!=null)))}</td></tr>`;
+  const tsv=[['Учасник','Пілот',...TASKS.flatMap(t=>[t.id+' успіх',t.id+' час, с',t.id+' помилки',t.id+' SEQ']),'SUS'].join('\t'),...all.map(s=>[s.code,s.pilot?'так':'ні',...TASKS.flatMap(T=>{const t=s.tasks.find(x=>x.id===T.id);return t?[t.result,t.timeSec,t.errors,t.seq]:['','','','']}),s.susScore??''].join('\t'))].join('\n');
+  box.innerHTML=`<div class="rwrap"><div class="rhead"><div><div class="eyebrow">LookMate · ЛР4</div><h1 class="h1">Результати юзабіліті-тестування</h1><div class="cap">${db?'Дані зі спільної бази артефакту і цього браузера.':'Спільна база недоступна в цьому перегляді: показано лише сесії з цього браузера.'} Таймкоди відраховуються від початку сесії.</div></div><a class="btn btn-o btn-m" href="#test">Нова сесія</a></div>
+  ${all.length?`<div class="tscroll"><table class="rt">${head}${rows}${sum}</table></div><button class="btn btn-p btn-m" id="cptsv">Копіювати таблицю (для Excel)</button>
+  <h2 class="h2" style="margin-top:12px">Нотатки з таймкодами</h2>${all.map(s=>`<details class="sess"><summary><b>${esc(s.code)}</b> · ${new Date(s.startedAt).toLocaleString('uk-UA')}${s.pilot?' · пілот':''}</summary><pre>${esc(sessionText(s))}</pre><div class="row" style="gap:8px;flex-wrap:wrap"><button class="btn btn-o btn-m" data-cp="${s.id}">Копіювати</button><button class="btn btn-t btn-m" data-del="${s.id}">Видалити сесію</button></div></details>`).join('')}`
+  :`<div class="card" style="padding:24px;text-align:center"><div class="h3">Сесій ще немає</div><div class="cap">Відкрийте режим тестування, введіть код учасника і пройдіть 5 задач. Результати з’являться тут.</div></div>`}</div>`;
+  const cp=$('cptsv');if(cp)cp.onclick=e=>copy(tsv,e.currentTarget);
+  box.querySelectorAll('[data-cp]').forEach(b=>b.onclick=()=>copy(sessionText(all.find(s=>s.id===b.dataset.cp)),b));
+  box.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{if(b.dataset.armed!=='1'){b.dataset.armed='1';b.textContent='Точно видалити? Натисніть ще раз';return}
+   const id=b.dataset.del;try{localStorage.setItem(LS,JSON.stringify(loadLocal().filter(s=>s.id!==id)))}catch(e){}local=loadLocal();if(db){try{await db.collection('sessions').doc(id).delete()}catch(e){}}if(!db)draw([])})};
+ if(db){if(!renderResults.sub){renderResults.sub=db.collection('sessions').onSnapshot(snap=>draw(snap.docs.map(d=>d.data())),()=>draw([]))}}else draw([]);}
+function applyMode(){const q=new URLSearchParams(location.search);const h=location.hash.replace('#','');const m=(h==='test'||h==='results')?h:(q.get('mode')||'');MODE=m==='test'?'test':m==='results'?'results':'demo';
+ document.body.classList.toggle('test',MODE==='test');document.body.classList.toggle('res',MODE==='results');$('results').hidden=MODE!=='results';
+ if(MODE==='test'){S.city='Львів';S.tab='Образ';show('home','r');if(!sess)startScreen()}
+ else if(MODE==='results'){renderResults()}
+ else{hideOverlay();$('tbar').hidden=true;task=null;if(!cur){if(q.get('screen')==='home'){S.tab='Образ';show('home')}else show('onb')}}
+ return true}
+addEventListener('hashchange',applyMode);
+applyMode();
+})();
+</script>
+
+
+</body>
+</html>
