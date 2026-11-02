@@ -327,5 +327,6 @@ applyMode();
 </script>
 
 
+<script>document.addEventListener('click',e=>{if(!cur||!cur.contains(e.target))return;const b=e.target.closest('[data-set]');if(b){e.stopPropagation();const k=b.dataset.set;if(k==='none')return;S[k]=b.dataset.val;if(k==='cat')S.catErr=false;const y=cur.scrollTop;cur.innerHTML=V[S.screen]();bind(cur);cur.scrollTop=y;window.TH&&TH.check(S.screen);return}const c=e.target.closest('.card.item');if(c&&S.screen==='result'&&!S.cat&&c.textContent.includes('Не впізнано')){const f=cur.querySelector('[data-set="cat"]');if(f){f.scrollIntoView({block:'center',behavior:'smooth'});f.focus()}S.catErr=true;const h=$('cath');if(h){h.className='hint err';h.textContent='Обери категорію нижче'}}},true);</script>
 </body>
 </html>
